@@ -11,7 +11,8 @@ public class FetchAllDatabase : MonoBehaviour
     public int numbersofrowsinLastCheck = 0;
     public int currentrows;
     public int iterating;
-    public PlayerPropJson[] playerpropjsonarray;
+    public List<PlayerPropJson> PlayerScoreList = new List<PlayerPropJson>();
+    //public PlayerPropJson[] playerpropjsonarray = new PlayerPropJson[1];
     int playernumber;
     void Start()
     {
@@ -29,18 +30,21 @@ public class FetchAllDatabase : MonoBehaviour
         }
         var response = e.Current; 
         currentrows = int.Parse(response.ToString());
-        Debug.Log(currentrows);
-        iterating = currentrows;
-        numbersofrowsinLastCheck = currentrows;
+       // Debug.Log(currentrows);
+        iterating = 1;
 
         if(numbersofrowsinLastCheck != currentrows)
         Run();
+
+        numbersofrowsinLastCheck = currentrows;
+        PlayerScoreList.Clear();
     }
 
     void Run()
     {
-        if (iterating == 0)
+        if (iterating > currentrows)
             return;
+
         playernumber = iterating;
         StartCoroutine(Iterate(CallBackAction));
 
@@ -56,17 +60,25 @@ public class FetchAllDatabase : MonoBehaviour
             yield return e.Current;
         }
         var response = e.Current as string; // << The returned string from the request
-        Debug.Log(response);
+        if (response == "Error")
+        {
+            Debug.Log("Error Fetching Data");
+        }
+        else
+        {
 
-        iterating--;
-        outcome.Invoke(response);
-        Run();
+           // Debug.Log(response);
 
+            iterating++;
+            outcome.Invoke(response.ToString());
+            Run();
+        }
     }
 
     void CallBackAction(string response)
     {
-        playerpropjsonarray[playernumber] = JsonUtility.FromJson<PlayerPropJson>(response);
+        PlayerScoreList.Add(JsonUtility.FromJson<PlayerPropJson>(response.Replace("&quot;", "\"")));
+       // Debug.Log(playerpropjsonarray[playernumber - 1].username);
     }
 
 }

@@ -144,13 +144,16 @@ public class Login : MonoBehaviour
             }
         }
     }
+
+    //public Player_Properties playerPropJson = new Player_Properties();
+    public PlayerPropJson playerPropJson;
     IEnumerator RegisterUser()
     {
         //Initialise data
-        PlayerPropJson playerPropJson = null;
+        string data;
         playerPropJson.username = playerUsername;
         playerPropJson.carbonfootprint = 0;
-        string data = JsonUtility.ToJson(playerPropJson);
+        data = JsonUtility.ToJson(playerPropJson);
 
         // Run the command sequence called 'Register' on the database name which has been retrieved in the start method.Sends the username and password(from the ui input fields) as parameters
         IEnumerator e = DCP.RunCS(databaseName, "Register", new string[3] { playerUsername, playerPassword, data});
@@ -252,6 +255,7 @@ public class Login : MonoBehaviour
                     //Username and passwords seem reasonable. Switch to 'Loading...' and start the coroutine to try and register an account on the server
                     registerParent.gameObject.SetActive(false);
                     loadingParent.gameObject.SetActive(true);
+
                     StartCoroutine(RegisterUser());
                 }
                 else
